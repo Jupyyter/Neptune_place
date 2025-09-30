@@ -358,6 +358,7 @@ function Projects() {
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
   const [showMobileDetailView, setShowMobileDetailView] = useState(false);
   const [lastScrollPosition, setLastScrollPosition] = useState(0);
+  const [isNavigatingBack, setIsNavigatingBack] = useState(false);
 
   const detailsPlayerRef = useRef<any>(null);
   const fullscreenPlayerRef = useRef<any>(null);
@@ -459,6 +460,8 @@ function Projects() {
         setTimeout(() => {
           window.scrollTo(0, lastScrollPosition);
         }, 50);
+        // Reset the navigation lock once the transition is complete.
+        setIsNavigatingBack(false);
       }
     };
 
@@ -514,9 +517,15 @@ function Projects() {
   };
   
   const handleBackToGrid = () => {
+    // Prevent multiple clicks while navigating.
+    if (isNavigatingBack) {
+      return;
+    }
+    setIsNavigatingBack(true);
+  
     // Navigate back in the browser's history.
     // This will trigger the `popstate` event, and our listener will handle hiding the view.
-    // This ensures the phone's back button and the UI's back button behave identically.
+    // This ensures the phone's back button and the UI's back button behave identically on the first press.
     window.history.back();
   };
   
@@ -836,8 +845,9 @@ function Projects() {
         <div className="flex items-center gap-3">
           <button
             onClick={handleBackToGrid}
-            className="flex items-center justify-center w-10 h-10 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
+            className={`flex items-center justify-center w-10 h-10 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors ${isNavigatingBack ? "opacity-50 cursor-not-allowed" : ""}`}
             aria-label="Back to projects"
+            disabled={isNavigatingBack}
           >
             <ArrowLeft className="w-5 h-5 text-white" />
           </button>
