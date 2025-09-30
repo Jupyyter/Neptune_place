@@ -474,8 +474,6 @@ function Projects() {
       if (isMobile) {
         // Store current scroll position before navigating
         setLastScrollPosition(window.scrollY);
-        // Push state to browser history
-        window.history.pushState({ projectId: project.id }, '', `#project-${project.id}`);
       }
       setSelectedProject(project);
       setIsFullscreen(false);
