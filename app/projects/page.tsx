@@ -448,6 +448,28 @@ function Projects() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  // Effect to handle browser history for mobile back button navigation
+  useEffect(() => {
+    const handlePopState = () => {
+      // If the URL hash is empty, it means we should be on the grid view.
+      if (isMobile && !window.location.hash) {
+        setShowMobileDetailView(false);
+        setSelectedProject(null);
+        // Restore the scroll position with a small delay.
+        setTimeout(() => {
+          window.scrollTo(0, lastScrollPosition);
+        }, 50);
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+
+    // Cleanup the event listener when the component unmounts.
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [isMobile, lastScrollPosition]); // Dependencies ensure the handler has the latest state.
+
   useEffect(() => {
     const detailsPanel = detailsPanelRef.current;
     if (!detailsPanel) return;
@@ -472,8 +494,10 @@ function Projects() {
   const handleProjectClick = (project: Project) => {
     if (project.id !== selectedProject?.id) {
       if (isMobile) {
-        // Store current scroll position before navigating
+        // Store current scroll position before navigating.
         setLastScrollPosition(window.scrollY);
+        // Push a new state to the browser history to enable the back button.
+        window.history.pushState({ projectId: project.id }, "", `#${project.id}`);
       }
       setSelectedProject(project);
       setIsFullscreen(false);
@@ -490,12 +514,10 @@ function Projects() {
   };
   
   const handleBackToGrid = () => {
-    setShowMobileDetailView(false);
-    setSelectedProject(null);
-    // Restore scroll position after a brief delay to allow DOM updates
-    setTimeout(() => {
-      window.scrollTo(0, lastScrollPosition);
-    }, 50);
+    // Navigate back in the browser's history.
+    // This will trigger the `popstate` event, and our listener will handle hiding the view.
+    // This ensures the phone's back button and the UI's back button behave identically.
+    window.history.back();
   };
   
   const handleDownload = (project: Project) => {
