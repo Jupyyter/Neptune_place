@@ -11,7 +11,7 @@ all: build commit push
 
 # Build the project
 build:
-	npm run build
+	npm.cmd run build
 
 # Commit changes
 # NOTE: Before committing a new TYPE of large file (e.g., .mp4, .psd),

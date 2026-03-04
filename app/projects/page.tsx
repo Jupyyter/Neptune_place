@@ -2,7 +2,6 @@
 import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { Maximize2, ArrowLeft } from "lucide-react";
-import { combineAndDownload, downloadSingleFile } from "./fileUtils";
 
 // --- Interfaces, TAGS, Projects Data ---
 interface Tag {
@@ -129,7 +128,7 @@ I made it possible for a multiplayer game, but since I don't have servers for th
     description: `This program plays any video in ASCII, with the default video being Bad Apple.
 Yes, this can now be done by an average AI, but I developed this project when AI's coding capabilities were rudimentary, so I consider this a decent learning experience.`,
     downloadUrls: ["asciiVideo.zip", "badApple.zip"],
-    tags: ["CPP", "LARGE_FILE"],
+    tags: ["CPP"],
     createdAt: new Date(),
     relevance: 8,
     repoName: "ASCII_video_player",
@@ -143,13 +142,13 @@ Yes, this can now be done by an average AI, but I developed this project when AI
     description: `A story game inspired by the life of Tarrare.
 I made this to see if I can create a game based on dialogue.`,
     downloadUrls: [`Hungry.zip`, "Hungry0.zip"],
-    tags: ["GODOT", "GDSCRIPT", "LARGE_FILE"],
+    tags: ["GODOT", "GDSCRIPT"],
     createdAt: new Date(),
     relevance: 6,
     repoName: "Hungry",
     images: Array.from(
       { length: 6 },
-      (_, i) => `/imgs/GabrielIsHungry${i}.png`
+      (_, i) => `/imgs/GabrielIsHungry${i}.png`,
     ),
   },
   {
@@ -189,7 +188,7 @@ I had about 1 week to create this game, but the majority of the code and sprites
 It features three distinct rooms to explore.
 I wanted to see if I can make something similar to a game without using a game engine.`,
     downloadUrls: [`cppGame2.zip`, "cppGame3.zip"],
-    tags: ["CPP", "SDL2", "LARGE_FILE"],
+    tags: ["CPP", "SDL2"],
     createdAt: new Date(),
     relevance: 1,
     repoName: "The_3_room_game",
@@ -216,13 +215,11 @@ A classic game implemented in Java.`,
 This is my first project in which I also made a level editor.
 Sorry for the music.`,
     downloadUrls: ["ikeaBattle.zip"],
-    tags: ["CPP", "SFML", "LARGE_FILE"],
+    tags: ["CPP", "SFML"],
     createdAt: new Date(),
     relevance: 9,
     repoName: "Bunny_game",
-    videoUrls: [
-      "https://www.youtube.com/watch?v=MGMpnPsCnlM&feature=youtu.be",
-    ],
+    videoUrls: ["https://www.youtube.com/watch?v=MGMpnPsCnlM&feature=youtu.be"],
     images: Array.from({ length: 4 }, (_, i) => `/imgs/ikea${i}.png`),
   },
   {
@@ -233,15 +230,10 @@ Sorry for the music.`,
 "A sense of depth."`,
     downloadUrls: ["road.zip"],
     tags: ["GODOT", "GDSCRIPT"],
-    createdAt: new Date('0000-00-00'),
+    createdAt: new Date("0000-00-00"),
     relevance: 0,
-    videoUrls: [
-      "https://www.youtube.com/watch?v=ZDzq4kmFn28",
-    ],
-    images: [
-      "/imgs/the road0.png",
-      "/imgs/the road1.png",
-    ],
+    videoUrls: ["https://www.youtube.com/watch?v=ZDzq4kmFn28"],
+    images: ["/imgs/the road0.png", "/imgs/the road1.png"],
   },
   {
     id: 9,
@@ -267,8 +259,10 @@ Each pixel behaves and interacts with the other pixels differently depending on 
     createdAt: new Date(),
     repoName: "Pixels",
     relevance: 12,
-    videoUrls: ["https://www.youtube.com/watch?v=S83AUOvuE7I&feature=youtu.be",
-      "https://www.youtube.com/watch?v=rCCa2yJmGNQ&feature=youtu.be"
+    videoUrls: [
+      "https://www.youtube.com/watch?v=b3flEorTYcE&feature=youtu.be",
+      "https://www.youtube.com/watch?v=S83AUOvuE7I&feature=youtu.be",
+      "https://www.youtube.com/watch?v=rCCa2yJmGNQ&feature=youtu.be",
     ],
     images: [],
   },
@@ -293,12 +287,12 @@ async function fetchRepoCreationDate(repoName: string): Promise<Date | null> {
 
     const response = await fetch(
       `${GITHUB_API_BASE}/repos/${GITHUB_USERNAME}/${repoName}`,
-      { headers }
+      { headers },
     );
 
     if (!response.ok) {
       console.error(
-        `Failed to fetch repo data for ${repoName}: ${response.status} ${response.statusText}`
+        `Failed to fetch repo data for ${repoName}: ${response.status} ${response.statusText}`,
       );
       return null;
     }
@@ -316,21 +310,32 @@ const renderFormattedDescription = (description: string) => {
   const purpleEndMarker = "%%PURPLE_END%%";
   const purpleClassName = "text-purple-500 font-semibold";
 
-  return description.split('\n').map((paragraph, index) => {
-    if (paragraph.includes(purpleStartMarker) && paragraph.includes(purpleEndMarker)) {
-      const parts = paragraph.split(new RegExp(`${purpleStartMarker}|${purpleEndMarker}`));
-      
+  return description.split("\n").map((paragraph, index) => {
+    if (
+      paragraph.includes(purpleStartMarker) &&
+      paragraph.includes(purpleEndMarker)
+    ) {
+      const parts = paragraph.split(
+        new RegExp(`${purpleStartMarker}|${purpleEndMarker}`),
+      );
+
       return (
-        <p key={index} className="project-description-paragraph whitespace-pre-wrap">
+        <p
+          key={index}
+          className="project-description-paragraph whitespace-pre-wrap"
+        >
           {parts[0]}
           <span className={purpleClassName}>{parts[1]}</span>
           {parts[2]}
         </p>
       );
     }
-    
+
     return (
-      <p key={index} className="project-description-paragraph whitespace-pre-wrap">
+      <p
+        key={index}
+        className="project-description-paragraph whitespace-pre-wrap"
+      >
         {paragraph}
       </p>
     );
@@ -340,17 +345,21 @@ const renderFormattedDescription = (description: string) => {
 function Projects() {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
-  const [isLoading, setIsLoading] = useState(false);
   const [hoveredTag, setHoveredTag] = useState<keyof typeof TAGS | null>(null);
   const [tooltipPosition, setTooltipPosition] = useState({
     x: 0,
     y: 0,
     alignTop: false,
   });
-  const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth < 768 : false);
+  const [isMobile, setIsMobile] = useState(
+    typeof window !== "undefined" ? window.innerWidth < 768 : false,
+  );
   const [sortOption, setSortOption] = useState<SortOption>("relevance");
   const [projectsWithDates, setProjectsWithDates] = useState<Project[]>(
-    projects.map(p => ({ ...p, createdAt: p.repoName ? new Date(0) : p.createdAt }))
+    projects.map((p) => ({
+      ...p,
+      createdAt: p.repoName ? new Date(0) : p.createdAt,
+    })),
   );
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [videoCurrentTime, setVideoCurrentTime] = useState(0);
@@ -370,7 +379,8 @@ function Projects() {
   const navbarHeight = 64;
 
   const getVideoCount = (project: Project) => project.videoUrls?.length || 0;
-  const getTotalMediaCount = (project: Project) => (project.videoUrls?.length || 0) + project.images.length;
+  const getTotalMediaCount = (project: Project) =>
+    (project.videoUrls?.length || 0) + project.images.length;
   const isCurrentMediaVideo = (project: Project | null, index: number) => {
     if (!project) return false;
     const numVideos = getVideoCount(project);
@@ -388,12 +398,17 @@ function Projects() {
     const fetchAndSetAllDates = async () => {
       const projectsWithFetchedDates = await Promise.all(
         initialProjectsWithPlaceholders.map(async (project) => {
-          if (project.repoName && project.createdAt.getTime() === new Date(0).getTime()) {
+          if (
+            project.repoName &&
+            project.createdAt.getTime() === new Date(0).getTime()
+          ) {
             const fetchedDate = await fetchRepoCreationDate(project.repoName);
-            return fetchedDate ? { ...project, createdAt: fetchedDate } : project;
+            return fetchedDate
+              ? { ...project, createdAt: fetchedDate }
+              : project;
           }
           return project;
-        })
+        }),
       );
       setProjectsWithDates(projectsWithFetchedDates);
     };
@@ -419,9 +434,9 @@ function Projects() {
     setCurrentMediaIndex(0);
     setVideoCurrentTime(0);
     if (selectedProject && isCurrentMediaVideo(selectedProject, 0)) {
-        setIsVideoPlaying(true);
+      setIsVideoPlaying(true);
     } else {
-        setIsVideoPlaying(false);
+      setIsVideoPlaying(false);
     }
 
     if (selectedProject && mediaThumbnailsContainerRef.current) {
@@ -431,7 +446,7 @@ function Projects() {
         }
       });
     }
-  }, [selectedProject]); 
+  }, [selectedProject]);
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
@@ -465,11 +480,11 @@ function Projects() {
       }
     };
 
-    window.addEventListener('popstate', handlePopState);
+    window.addEventListener("popstate", handlePopState);
 
     // Cleanup the event listener when the component unmounts.
     return () => {
-      window.removeEventListener('popstate', handlePopState);
+      window.removeEventListener("popstate", handlePopState);
     };
   }, [isMobile, lastScrollPosition]); // Dependencies ensure the handler has the latest state.
 
@@ -500,7 +515,11 @@ function Projects() {
         // Store current scroll position before navigating.
         setLastScrollPosition(window.scrollY);
         // Push a new state to the browser history to enable the back button.
-        window.history.pushState({ projectId: project.id }, "", `#${project.id}`);
+        window.history.pushState(
+          { projectId: project.id },
+          "",
+          `#${project.id}`,
+        );
       }
       setSelectedProject(project);
       setIsFullscreen(false);
@@ -509,40 +528,29 @@ function Projects() {
       }
     }
   };
-  
+
   const closeProjectDetails = () => {
     setSelectedProject(null);
     setIsFullscreen(false);
     setShowMobileDetailView(false);
   };
-  
+
   const handleBackToGrid = () => {
     // Prevent multiple clicks while navigating.
     if (isNavigatingBack) {
       return;
     }
     setIsNavigatingBack(true);
-  
+
     // Navigate back in the browser's history.
     // This will trigger the `popstate` event, and our listener will handle hiding the view.
     // This ensures the phone's back button and the UI's back button behave identically on the first press.
     window.history.back();
   };
-  
-  const handleDownload = (project: Project) => {
-    setIsLoading(true);
-    if (project.downloadUrls.length === 1) {
-      const fileName =
-        project.downloadUrls[0].split("/").pop() || `${project.title}.zip`;
-      downloadSingleFile(project.downloadUrls[0], fileName, setIsLoading);
-    } else {
-      combineAndDownload(project, setIsLoading);
-    }
-  };
 
   const handleTagHover = (
     tagKey: keyof typeof TAGS,
-    event: React.MouseEvent<HTMLDivElement>
+    event: React.MouseEvent<HTMLDivElement>,
   ) => {
     setHoveredTag(tagKey);
     const tagRect = event.currentTarget.getBoundingClientRect();
@@ -554,19 +562,22 @@ function Projects() {
 
     const tooltipElement = tooltipRef.current;
     if (tooltipElement) {
-        tooltipElement.style.opacity = '0';
-        tooltipElement.style.display = 'block';
-        const tooltipHeight = tooltipElement.offsetHeight;
-        tooltipElement.style.opacity = '';
-        tooltipElement.style.display = '';
+      tooltipElement.style.opacity = "0";
+      tooltipElement.style.display = "block";
+      const tooltipHeight = tooltipElement.offsetHeight;
+      tooltipElement.style.opacity = "";
+      tooltipElement.style.display = "";
 
-        if (y + tooltipHeight > windowHeight && tagRect.top - tooltipHeight - 5 > 0) {
-            y = tagRect.top - 5;
-            alignTop = true;
-        } else if (y + tooltipHeight > windowHeight) {
-            y = windowHeight - tooltipHeight - 5;
-            alignTop = false;
-        }
+      if (
+        y + tooltipHeight > windowHeight &&
+        tagRect.top - tooltipHeight - 5 > 0
+      ) {
+        y = tagRect.top - 5;
+        alignTop = true;
+      } else if (y + tooltipHeight > windowHeight) {
+        y = windowHeight - tooltipHeight - 5;
+        alignTop = false;
+      }
     }
 
     if (x + tooltipWidth > window.innerWidth) {
@@ -608,29 +619,46 @@ function Projects() {
     projectForPlayer: Project,
     videoIndex: number,
     initialTime: number,
-    initialPlaying: boolean
+    initialPlaying: boolean,
   ) => {
-    if (!playerReady || !document.getElementById(elementId) || !isCurrentMediaVideo(projectForPlayer, videoIndex)) return;
+    if (
+      !playerReady ||
+      !document.getElementById(elementId) ||
+      !isCurrentMediaVideo(projectForPlayer, videoIndex)
+    )
+      return;
 
-    if (playerRef.current && typeof playerRef.current.destroy === 'function') {
-      try { playerRef.current.destroy(); }
-      catch (e) { console.warn(`Error destroying existing player on ref for ${elementId}:`, e); }
+    if (playerRef.current && typeof playerRef.current.destroy === "function") {
+      try {
+        playerRef.current.destroy();
+      } catch (e) {
+        console.warn(
+          `Error destroying existing player on ref for ${elementId}:`,
+          e,
+        );
+      }
     }
     playerRef.current = null;
-    
+
     const videoUrl = projectForPlayer.videoUrls![videoIndex];
     const videoId = videoUrl.split("v=")[1]?.split("&")[0];
     if (!videoId) {
-        console.error("Invalid videoId for player:", projectForPlayer.title, videoUrl);
-        return;
+      console.error(
+        "Invalid videoId for player:",
+        projectForPlayer.title,
+        videoUrl,
+      );
+      return;
     }
 
     playerRef.current = new (window as any).YT.Player(elementId, {
       videoId: videoId,
       playerVars: {
-        modestbranding: 1, fs: 0,
+        modestbranding: 1,
+        fs: 0,
         origin: typeof window !== "undefined" ? window.location.origin : "",
-        autoplay: 0, controls: 1,
+        autoplay: 0,
+        controls: 1,
       },
       events: {
         onReady: (event: any) => {
@@ -642,7 +670,10 @@ function Projects() {
           }
         },
         onError: (event: any) => {
-          console.error(`YT Error for ${elementId} (Video: ${projectForPlayer.title}):`, event.data);
+          console.error(
+            `YT Error for ${elementId} (Video: ${projectForPlayer.title}):`,
+            event.data,
+          );
         },
       },
     });
@@ -651,62 +682,133 @@ function Projects() {
   // Details Player Lifecycle & State
   useEffect(() => {
     let timeoutId: NodeJS.Timeout | null = null;
-    const shouldPlayerExist = playerReady && selectedProject && isCurrentMediaVideo(selectedProject, currentMediaIndex) && !isFullscreen;
+    const shouldPlayerExist =
+      playerReady &&
+      selectedProject &&
+      isCurrentMediaVideo(selectedProject, currentMediaIndex) &&
+      !isFullscreen;
 
     if (shouldPlayerExist) {
       const detailsContainerId = `youtube-player-container-details-${selectedProject!.id}-${currentMediaIndex}`;
       if (document.getElementById(detailsContainerId)) {
-         createPlayerInstance(detailsContainerId, detailsPlayerRef, selectedProject!, currentMediaIndex, videoCurrentTime, isVideoPlaying);
+        createPlayerInstance(
+          detailsContainerId,
+          detailsPlayerRef,
+          selectedProject!,
+          currentMediaIndex,
+          videoCurrentTime,
+          isVideoPlaying,
+        );
       } else {
         timeoutId = setTimeout(() => {
-            if (playerReady && selectedProject && isCurrentMediaVideo(selectedProject, currentMediaIndex) && !isFullscreen && document.getElementById(detailsContainerId)) {
-                 createPlayerInstance(detailsContainerId, detailsPlayerRef, selectedProject, currentMediaIndex, videoCurrentTime, isVideoPlaying);
-            }
+          if (
+            playerReady &&
+            selectedProject &&
+            isCurrentMediaVideo(selectedProject, currentMediaIndex) &&
+            !isFullscreen &&
+            document.getElementById(detailsContainerId)
+          ) {
+            createPlayerInstance(
+              detailsContainerId,
+              detailsPlayerRef,
+              selectedProject,
+              currentMediaIndex,
+              videoCurrentTime,
+              isVideoPlaying,
+            );
+          }
         }, 50);
       }
     }
     return () => {
       if (timeoutId) clearTimeout(timeoutId);
       const playerInstance = detailsPlayerRef.current;
-      if (playerInstance && typeof playerInstance.destroy === 'function') {
-        try { playerInstance.destroy(); }
-        catch (e) { console.warn("Caught error during details player.destroy():", e); }
+      if (playerInstance && typeof playerInstance.destroy === "function") {
+        try {
+          playerInstance.destroy();
+        } catch (e) {
+          console.warn("Caught error during details player.destroy():", e);
+        }
       }
       detailsPlayerRef.current = null;
     };
-  }, [playerReady, selectedProject?.id, currentMediaIndex, isFullscreen, videoCurrentTime, isVideoPlaying]);
+  }, [
+    playerReady,
+    selectedProject?.id,
+    currentMediaIndex,
+    isFullscreen,
+    videoCurrentTime,
+    isVideoPlaying,
+  ]);
 
   // Fullscreen Player Lifecycle & State (only for desktop)
   useEffect(() => {
     let timeoutId: NodeJS.Timeout | null = null;
-    const shouldPlayerExist = isFullscreen && !isMobile && playerReady && selectedProject && isCurrentMediaVideo(selectedProject, currentMediaIndex);
+    const shouldPlayerExist =
+      isFullscreen &&
+      !isMobile &&
+      playerReady &&
+      selectedProject &&
+      isCurrentMediaVideo(selectedProject, currentMediaIndex);
 
     if (shouldPlayerExist) {
       const fullscreenContainerId = `youtube-player-container-fullscreen-${selectedProject!.id}-${currentMediaIndex}`;
       if (document.getElementById(fullscreenContainerId)) {
-        createPlayerInstance(fullscreenContainerId, fullscreenPlayerRef, selectedProject!, currentMediaIndex, videoCurrentTime, isVideoPlaying);
+        createPlayerInstance(
+          fullscreenContainerId,
+          fullscreenPlayerRef,
+          selectedProject!,
+          currentMediaIndex,
+          videoCurrentTime,
+          isVideoPlaying,
+        );
       } else {
         timeoutId = setTimeout(() => {
-            if (isFullscreen && !isMobile && playerReady && selectedProject && isCurrentMediaVideo(selectedProject, currentMediaIndex) && document.getElementById(fullscreenContainerId)) {
-                createPlayerInstance(fullscreenContainerId, fullscreenPlayerRef, selectedProject, currentMediaIndex, videoCurrentTime, isVideoPlaying);
-            }
+          if (
+            isFullscreen &&
+            !isMobile &&
+            playerReady &&
+            selectedProject &&
+            isCurrentMediaVideo(selectedProject, currentMediaIndex) &&
+            document.getElementById(fullscreenContainerId)
+          ) {
+            createPlayerInstance(
+              fullscreenContainerId,
+              fullscreenPlayerRef,
+              selectedProject,
+              currentMediaIndex,
+              videoCurrentTime,
+              isVideoPlaying,
+            );
+          }
         }, 50);
       }
     }
     return () => {
       if (timeoutId) clearTimeout(timeoutId);
       const playerInstance = fullscreenPlayerRef.current;
-      if (playerInstance && typeof playerInstance.destroy === 'function') {
-        try { playerInstance.destroy(); }
-        catch (e) { console.warn("Caught error during fullscreen player.destroy():", e); }
+      if (playerInstance && typeof playerInstance.destroy === "function") {
+        try {
+          playerInstance.destroy();
+        } catch (e) {
+          console.warn("Caught error during fullscreen player.destroy():", e);
+        }
       }
       fullscreenPlayerRef.current = null;
     };
-  }, [isFullscreen, playerReady, selectedProject?.id, currentMediaIndex, videoCurrentTime, isVideoPlaying, isMobile]);
+  }, [
+    isFullscreen,
+    playerReady,
+    selectedProject?.id,
+    currentMediaIndex,
+    videoCurrentTime,
+    isVideoPlaying,
+    isMobile,
+  ]);
 
   const handleMediaClick = () => {
     if (!selectedProject || isMobile) return; // Disable fullscreen on mobile
-    
+
     if (isCurrentMediaVideo(selectedProject, currentMediaIndex)) {
       const player = detailsPlayerRef.current;
       let currentTime = 0;
@@ -716,8 +818,13 @@ function Projects() {
         try {
           currentTime = player.getCurrentTime();
           const state = player.getPlayerState();
-          playing = (state === 1 || state === 3);
-        } catch (e) { console.error("Error getting details player state/time for fullscreen:", e); }
+          playing = state === 1 || state === 3;
+        } catch (e) {
+          console.error(
+            "Error getting details player state/time for fullscreen:",
+            e,
+          );
+        }
       } else {
         playing = isVideoPlaying;
       }
@@ -733,12 +840,20 @@ function Projects() {
     let lastKnownTime = videoCurrentTime;
     let wasPlayingInFullscreen = isVideoPlaying;
 
-    if (fullscreenPlayerRef.current?.getCurrentTime && fullscreenPlayerRef.current?.getPlayerState) {
+    if (
+      fullscreenPlayerRef.current?.getCurrentTime &&
+      fullscreenPlayerRef.current?.getPlayerState
+    ) {
       try {
         lastKnownTime = fullscreenPlayerRef.current.getCurrentTime();
         const state = fullscreenPlayerRef.current.getPlayerState();
-        wasPlayingInFullscreen = (state === 1 || state === 3);
-      } catch (e) { console.error("Error getting fullscreen player state/time on close:", e); }
+        wasPlayingInFullscreen = state === 1 || state === 3;
+      } catch (e) {
+        console.error(
+          "Error getting fullscreen player state/time on close:",
+          e,
+        );
+      }
     }
     setVideoCurrentTime(lastKnownTime);
     setIsVideoPlaying(wasPlayingInFullscreen);
@@ -755,9 +870,14 @@ function Projects() {
     setCurrentMediaIndex(index);
 
     if (fullscreenMediaThumbnailsContainerRef.current) {
-      const selectedThumb = fullscreenMediaThumbnailsContainerRef.current.children[index] as HTMLElement;
+      const selectedThumb = fullscreenMediaThumbnailsContainerRef.current
+        .children[index] as HTMLElement;
       if (selectedThumb?.scrollIntoView) {
-        selectedThumb.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+        selectedThumb.scrollIntoView({
+          behavior: "smooth",
+          block: "nearest",
+          inline: "center",
+        });
       }
     }
   };
@@ -776,58 +896,66 @@ function Projects() {
   const renderMedia = (
     project: Project,
     index: number,
-    inFullscreen: boolean = false
+    inFullscreen: boolean = false,
   ) => {
     const isVideo = isCurrentMediaVideo(project, index);
     const videoCount = getVideoCount(project);
     const imageIndex = index - videoCount;
 
     const mediaKey = isVideo
-      ? `media-video-${project.id}-${index}-${inFullscreen ? 'fs' : 'dt'}`
-      : `media-image-${project.id}-${imageIndex}-${inFullscreen ? 'fs' : 'dt'}`;
+      ? `media-video-${project.id}-${index}-${inFullscreen ? "fs" : "dt"}`
+      : `media-image-${project.id}-${imageIndex}-${inFullscreen ? "fs" : "dt"}`;
 
     if (isVideo) {
       const playerContainerId = inFullscreen
         ? `youtube-player-container-fullscreen-${project.id}-${index}`
         : `youtube-player-container-details-${project.id}-${index}`;
       return (
-        <div key={mediaKey} className={`relative w-full h-full ${!inFullscreen ? "aspect-video" : ""}`}>
-          <div
-            id={playerContainerId}
-            className="w-full h-full"
-          >
-          </div>
+        <div
+          key={mediaKey}
+          className={`relative w-full h-full ${!inFullscreen ? "aspect-video" : ""}`}
+        >
+          <div id={playerContainerId} className="w-full h-full"></div>
           {!inFullscreen && !isMobile && (
             <button
               onClick={handleMediaClick}
               className="absolute bottom-2 right-2 bg-black bg-opacity-50 p-2 rounded-lg hover:bg-opacity-70 transition-opacity"
-              title="Enter fullscreen" aria-label="Enter fullscreen for video"
+              title="Enter fullscreen"
+              aria-label="Enter fullscreen for video"
             >
               <Maximize2 className="w-5 h-5 text-white" />
             </button>
           )}
         </div>
       );
-    } else { 
+    } else {
       if (imageIndex < 0 || imageIndex >= project.images.length) {
         return <div key={mediaKey}>Error: Image not found</div>;
       }
       const imageUrl = project.images[imageIndex];
-      const commonImageClasses = inFullscreen ? "object-contain rounded-lg" : "object-cover rounded-lg";
+      const commonImageClasses = inFullscreen
+        ? "object-contain rounded-lg"
+        : "object-cover rounded-lg";
       return (
         <div
           key={mediaKey}
           className={`relative w-full h-full ${!inFullscreen && !isMobile ? "cursor-pointer" : ""}`}
           onClick={!inFullscreen && !isMobile ? handleMediaClick : undefined}
           role={!inFullscreen && !isMobile ? "button" : undefined}
-          aria-label={!inFullscreen && !isMobile ? "View image fullscreen" : undefined}
+          aria-label={
+            !inFullscreen && !isMobile ? "View image fullscreen" : undefined
+          }
         >
           <Image
             src={imageUrl}
             alt={`${project.title} - Image ${imageIndex + 1}`}
             fill
             className={commonImageClasses}
-            sizes={inFullscreen ? "90vw" : "(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"}
+            sizes={
+              inFullscreen
+                ? "90vw"
+                : "(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            }
             quality={inFullscreen ? 90 : 85}
             priority={true}
             unoptimized={false}
@@ -851,7 +979,9 @@ function Projects() {
           >
             <ArrowLeft className="w-5 h-5 text-white" />
           </button>
-          <h2 className="text-lg font-semibold text-white truncate flex-1">{project.title}</h2>
+          <h2 className="text-lg font-semibold text-white truncate flex-1">
+            {project.title}
+          </h2>
         </div>
       </div>
 
@@ -874,7 +1004,9 @@ function Projects() {
                 <div
                   key={`mobile-video-thumb-${project.id}-${videoIdx}`}
                   className={`inline-block align-top w-28 h-20 mr-1 cursor-pointer rounded-md overflow-hidden relative ${
-                    currentMediaIndex === videoIdx ? "ring-2 ring-blue-500" : "ring-1 ring-gray-700 hover:ring-gray-500"
+                    currentMediaIndex === videoIdx
+                      ? "ring-2 ring-blue-500"
+                      : "ring-1 ring-gray-700 hover:ring-gray-500"
                   }`}
                   onClick={() => {
                     setVideoCurrentTime(0);
@@ -884,14 +1016,43 @@ function Projects() {
                   title={`${project.title} - Video ${videoIdx + 1}`}
                 >
                   {videoId ? (
-                    <Image src={`https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`} alt="Video thumbnail" fill className="object-cover pointer-events-none" quality={75} sizes="112px" />
+                    <Image
+                      src={`https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`}
+                      alt="Video thumbnail"
+                      fill
+                      className="object-cover pointer-events-none"
+                      quality={75}
+                      sizes="112px"
+                    />
                   ) : (
                     <div className="w-full h-full bg-gray-700 flex items-center justify-center pointer-events-none">
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-8 h-8 text-white"><path fillRule="evenodd" d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.279 20.001c-1.25.687-2.779-.217-2.779-1.643V5.653Z" clipRule="evenodd" /></svg>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        className="w-8 h-8 text-white"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.279 20.001c-1.25.687-2.779-.217-2.779-1.643V5.653Z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
                     </div>
                   )}
                   <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center group-hover:bg-opacity-10 transition-opacity pointer-events-none">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-8 h-8 text-white opacity-75"><path fillRule="evenodd" d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.279 20.001c-1.25.687-2.779-.217-2.779-1.643V5.653Z" clipRule="evenodd" /></svg>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      className="w-8 h-8 text-white opacity-75"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.279 20.001c-1.25.687-2.779-.217-2.779-1.643V5.653Z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
                   </div>
                 </div>
               );
@@ -902,12 +1063,21 @@ function Projects() {
                 <div
                   key={`mobile-img-thumb-${project.id}-${imgIdx}`}
                   className={`inline-block align-top w-28 h-20 mr-1 cursor-pointer rounded-md overflow-hidden relative ${
-                    currentMediaIndex === overallIndex ? "ring-2 ring-blue-500" : "ring-1 ring-gray-700 hover:ring-gray-500"
+                    currentMediaIndex === overallIndex
+                      ? "ring-2 ring-blue-500"
+                      : "ring-1 ring-gray-700 hover:ring-gray-500"
                   }`}
                   onClick={() => setCurrentMediaIndex(overallIndex)}
                   title={`${project.title} - Image ${imgIdx + 1}`}
                 >
-                  <Image src={imageUrl} alt={`Thumbnail ${imgIdx + 1}`} fill className="object-cover pointer-events-none" sizes="112px" quality={70} />
+                  <Image
+                    src={imageUrl}
+                    alt={`Thumbnail ${imgIdx + 1}`}
+                    fill
+                    className="object-cover pointer-events-none"
+                    sizes="112px"
+                    quality={70}
+                  />
                 </div>
               );
             })}
@@ -917,8 +1087,17 @@ function Projects() {
         {/* Tags */}
         <div className="flex flex-wrap gap-2">
           {project.tags.map((tagKey) => (
-            <div key={tagKey} className="relative inline-block" onMouseEnter={(e) => handleTagHover(tagKey, e)} onMouseLeave={() => setHoveredTag(null)}>
-              <span className={`${TAGS[tagKey].color} text-white text-xs px-2 py-1 rounded cursor-help`}>{TAGS[tagKey].name}</span>
+            <div
+              key={tagKey}
+              className="relative inline-block"
+              onMouseEnter={(e) => handleTagHover(tagKey, e)}
+              onMouseLeave={() => setHoveredTag(null)}
+            >
+              <span
+                className={`${TAGS[tagKey].color} text-white text-xs px-2 py-1 rounded cursor-help`}
+              >
+                {TAGS[tagKey].name}
+              </span>
             </div>
           ))}
         </div>
@@ -930,18 +1109,15 @@ function Projects() {
 
         {/* Creation Date */}
         <p className="text-gray-400 text-sm">
-          Created: {project.createdAt instanceof Date && project.createdAt.getTime() !== new Date(0).getTime() ? project.createdAt.toLocaleDateString() : "Loading date..."}
+          Created:{" "}
+          {project.createdAt instanceof Date &&
+          project.createdAt.getTime() !== new Date(0).getTime()
+            ? project.createdAt.toLocaleDateString()
+            : "Loading date..."}
         </p>
 
         {/* Action Buttons */}
         <div className="space-y-2">
-          <button
-            onClick={() => handleDownload(project)}
-            className={`bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-lg text-sm w-full transition-opacity ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
-            disabled={isLoading}
-          >
-            {isLoading ? "Processing..." : "Download"}
-          </button>
           {project.repoName && (
             <a
               href={`https://github.com/${GITHUB_USERNAME}/${project.repoName}`}
@@ -961,15 +1137,48 @@ function Projects() {
   return (
     <div className="flex flex-col items-center justify-start min-h-screen p-2 pt-8">
       <style jsx global>{`
-        .thumbnail-scrollbar::-webkit-scrollbar { height: 16px; background-color: transparent; }
-        .thumbnail-scrollbar::-webkit-scrollbar-track { background: #1a202c; border-radius: 16px; margin: 0 2px; }
-        .thumbnail-scrollbar::-webkit-scrollbar-thumb { background: #4a5568; border-radius: 16px; border: 2px solid #1a202c; }
-        .thumbnail-scrollbar::-webkit-scrollbar-thumb:hover { background: #718096; }
-        .thumbnail-scrollbar { scrollbar-width: auto; scrollbar-color: #4a5568 #1a202c; }
-        @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
-        .animate-fade-in { animation: fade-in 0.3s ease-out forwards; }
-        .project-description-paragraph, .tooltip-description-paragraph { text-indent: 4ch; margin-top: 0; margin-bottom: 0; }
-        .project-description-paragraph:empty, .tooltip-description-paragraph:empty { min-height: 1em; }
+        .thumbnail-scrollbar::-webkit-scrollbar {
+          height: 16px;
+          background-color: transparent;
+        }
+        .thumbnail-scrollbar::-webkit-scrollbar-track {
+          background: #1a202c;
+          border-radius: 16px;
+          margin: 0 2px;
+        }
+        .thumbnail-scrollbar::-webkit-scrollbar-thumb {
+          background: #4a5568;
+          border-radius: 16px;
+          border: 2px solid #1a202c;
+        }
+        .thumbnail-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: #718096;
+        }
+        .thumbnail-scrollbar {
+          scrollbar-width: auto;
+          scrollbar-color: #4a5568 #1a202c;
+        }
+        @keyframes fade-in {
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
+        }
+        .animate-fade-in {
+          animation: fade-in 0.3s ease-out forwards;
+        }
+        .project-description-paragraph,
+        .tooltip-description-paragraph {
+          text-indent: 4ch;
+          margin-top: 0;
+          margin-bottom: 0;
+        }
+        .project-description-paragraph:empty,
+        .tooltip-description-paragraph:empty {
+          min-height: 1em;
+        }
       `}</style>
 
       {/* Mobile Detail View */}
@@ -1011,8 +1220,8 @@ function Projects() {
                 selectedProject && !isMobile ? "w-[calc(70%-1rem)]" : "w-full"
               }`}
               style={{
-                gridTemplateColumns: isMobile 
-                  ? "repeat(2, minmax(0, 1fr))" 
+                gridTemplateColumns: isMobile
+                  ? "repeat(2, minmax(0, 1fr))"
                   : "repeat(auto-fill, minmax(250px, 1fr))",
               }}
             >
@@ -1026,11 +1235,13 @@ function Projects() {
                   }`}
                   onClick={() => handleProjectClick(project)}
                   onDragStart={(e) => e.preventDefault()}
-                  style={{ 
-                    maxHeight: isMobile ? "280px" : "400px" 
+                  style={{
+                    maxHeight: isMobile ? "280px" : "400px",
                   }}
                 >
-                  <div className={`relative w-full ${isMobile ? "h-32" : "h-48"}`}>
+                  <div
+                    className={`relative w-full ${isMobile ? "h-32" : "h-48"}`}
+                  >
                     <Image
                       src={project.thumbnail}
                       alt={project.title}
@@ -1072,7 +1283,8 @@ function Projects() {
                     </div>
                     <div className="text-sm text-gray-400 mt-1">
                       Created:{" "}
-                      {project.createdAt instanceof Date && project.createdAt.getTime() !== new Date(0).getTime()
+                      {project.createdAt instanceof Date &&
+                      project.createdAt.getTime() !== new Date(0).getTime()
                         ? project.createdAt.toLocaleDateString()
                         : "Loading date..."}
                     </div>
@@ -1106,45 +1318,86 @@ function Projects() {
                     className="py-2 px-1 overflow-x-auto whitespace-nowrap thumbnail-scrollbar"
                   >
                     {selectedProject.videoUrls?.map((videoUrl, videoIdx) => {
-                        const videoId = videoUrl.split("v=")[1]?.split("&")[0];
-                        return (
-                          <div
-                            key={`video-thumb-${selectedProject.id}-${videoIdx}`}
-                            className={`inline-block align-top w-28 h-20 mr-1 cursor-pointer rounded-md overflow-hidden relative ${
-                              currentMediaIndex === videoIdx ? "ring-2 ring-blue-500" : "ring-1 ring-gray-700 hover:ring-gray-500"
-                            }`}
-                            onClick={() => {
-                              setVideoCurrentTime(0);
-                              setIsVideoPlaying(true);
-                              setCurrentMediaIndex(videoIdx);
-                            }}
-                            title={`${selectedProject.title} - Video ${videoIdx + 1}`}
-                          >
-                            {videoId ? (
-                              <Image src={`https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`} alt="Video thumbnail" fill className="object-cover pointer-events-none" quality={75} sizes="112px" />
-                            ) : (
-                              <div className="w-full h-full bg-gray-700 flex items-center justify-center pointer-events-none">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-8 h-8 text-white"><path fillRule="evenodd" d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.279 20.001c-1.25.687-2.779-.217-2.779-1.643V5.653Z" clipRule="evenodd" /></svg>
-                              </div>
-                            )}
-                            <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center group-hover:bg-opacity-10 transition-opacity pointer-events-none">
-                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-8 h-8 text-white opacity-75"><path fillRule="evenodd" d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.279 20.001c-1.25.687-2.779-.217-2.779-1.643V5.653Z" clipRule="evenodd" /></svg>
+                      const videoId = videoUrl.split("v=")[1]?.split("&")[0];
+                      return (
+                        <div
+                          key={`video-thumb-${selectedProject.id}-${videoIdx}`}
+                          className={`inline-block align-top w-28 h-20 mr-1 cursor-pointer rounded-md overflow-hidden relative ${
+                            currentMediaIndex === videoIdx
+                              ? "ring-2 ring-blue-500"
+                              : "ring-1 ring-gray-700 hover:ring-gray-500"
+                          }`}
+                          onClick={() => {
+                            setVideoCurrentTime(0);
+                            setIsVideoPlaying(true);
+                            setCurrentMediaIndex(videoIdx);
+                          }}
+                          title={`${selectedProject.title} - Video ${videoIdx + 1}`}
+                        >
+                          {videoId ? (
+                            <Image
+                              src={`https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`}
+                              alt="Video thumbnail"
+                              fill
+                              className="object-cover pointer-events-none"
+                              quality={75}
+                              sizes="112px"
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-gray-700 flex items-center justify-center pointer-events-none">
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 24 24"
+                                fill="currentColor"
+                                className="w-8 h-8 text-white"
+                              >
+                                <path
+                                  fillRule="evenodd"
+                                  d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.279 20.001c-1.25.687-2.779-.217-2.779-1.643V5.653Z"
+                                  clipRule="evenodd"
+                                />
+                              </svg>
                             </div>
+                          )}
+                          <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center group-hover:bg-opacity-10 transition-opacity pointer-events-none">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 24 24"
+                              fill="currentColor"
+                              className="w-8 h-8 text-white opacity-75"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.279 20.001c-1.25.687-2.779-.217-2.779-1.643V5.653Z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
                           </div>
-                        );
-                      })}
+                        </div>
+                      );
+                    })}
                     {selectedProject.images.map((imageUrl, imgIdx) => {
-                      const overallIndex = (selectedProject.videoUrls?.length || 0) + imgIdx;
+                      const overallIndex =
+                        (selectedProject.videoUrls?.length || 0) + imgIdx;
                       return (
                         <div
                           key={`img-thumb-${selectedProject.id}-${imgIdx}`}
                           className={`inline-block align-top w-28 h-20 mr-1 cursor-pointer rounded-md overflow-hidden relative ${
-                            currentMediaIndex === overallIndex ? "ring-2 ring-blue-500" : "ring-1 ring-gray-700 hover:ring-gray-500"
+                            currentMediaIndex === overallIndex
+                              ? "ring-2 ring-blue-500"
+                              : "ring-1 ring-gray-700 hover:ring-gray-500"
                           }`}
                           onClick={() => setCurrentMediaIndex(overallIndex)}
                           title={`${selectedProject.title} - Image ${imgIdx + 1}`}
                         >
-                          <Image src={imageUrl} alt={`Thumbnail ${imgIdx + 1}`} fill className="object-cover pointer-events-none" sizes="112px" quality={70} />
+                          <Image
+                            src={imageUrl}
+                            alt={`Thumbnail ${imgIdx + 1}`}
+                            fill
+                            className="object-cover pointer-events-none"
+                            sizes="112px"
+                            quality={70}
+                          />
                         </div>
                       );
                     })}
@@ -1154,8 +1407,17 @@ function Projects() {
                   </h3>
                   <div className="flex flex-wrap mb-3">
                     {selectedProject.tags.map((tagKey) => (
-                      <div key={tagKey} className="relative inline-block mr-2 mb-2" onMouseEnter={(e) => handleTagHover(tagKey, e)} onMouseLeave={() => setHoveredTag(null)}>
-                        <span className={`${TAGS[tagKey].color} text-white text-xs px-2 py-1 rounded cursor-help`}>{TAGS[tagKey].name}</span>
+                      <div
+                        key={tagKey}
+                        className="relative inline-block mr-2 mb-2"
+                        onMouseEnter={(e) => handleTagHover(tagKey, e)}
+                        onMouseLeave={() => setHoveredTag(null)}
+                      >
+                        <span
+                          className={`${TAGS[tagKey].color} text-white text-xs px-2 py-1 rounded cursor-help`}
+                        >
+                          {TAGS[tagKey].name}
+                        </span>
                       </div>
                     ))}
                   </div>
@@ -1163,15 +1425,14 @@ function Projects() {
                     {renderFormattedDescription(selectedProject.description)}
                   </div>
                   <p className="text-gray-400 text-sm mb-5">
-                    Created: {selectedProject.createdAt instanceof Date && selectedProject.createdAt.getTime() !== new Date(0).getTime() ? selectedProject.createdAt.toLocaleDateString() : "Loading date..."}
+                    Created:{" "}
+                    {selectedProject.createdAt instanceof Date &&
+                    selectedProject.createdAt.getTime() !==
+                      new Date(0).getTime()
+                      ? selectedProject.createdAt.toLocaleDateString()
+                      : "Loading date..."}
                   </p>
-                  <button
-                    onClick={() => handleDownload(selectedProject)}
-                    className={`bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg text-sm w-full transition-opacity ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
-                    disabled={isLoading}
-                  >
-                    {isLoading ? "Processing..." : "Download"}
-                  </button>
+
                   {selectedProject.repoName && (
                     <a
                       href={`https://github.com/${GITHUB_USERNAME}/${selectedProject.repoName}`}
@@ -1192,27 +1453,92 @@ function Projects() {
 
       {isFullscreen && selectedProject && !isMobile && (
         <div className="fixed inset-0 bg-black bg-opacity-95 z-[100] flex flex-col items-center justify-center p-12 animate-fade-in">
-          <button onClick={handleCloseFullscreen} className="absolute top-3 right-3 text-white bg-red-500 hover:bg-red-700 w-10 h-10 flex items-center justify-center text-2xl font-bold rounded-full z-[120]" aria-label="Close fullscreen">×</button>
+          <button
+            onClick={handleCloseFullscreen}
+            className="absolute top-3 right-3 text-white bg-red-500 hover:bg-red-700 w-10 h-10 flex items-center justify-center text-2xl font-bold rounded-full z-[120]"
+            aria-label="Close fullscreen"
+          >
+            ×
+          </button>
           <div className="relative w-full flex-grow flex items-center justify-center overflow-hidden p-1">
             {renderMedia(selectedProject, currentMediaIndex, true)}
           </div>
           {getTotalMediaCount(selectedProject) > 1 && (
-            <div ref={fullscreenMediaThumbnailsContainerRef} className="w-full h-24 bg-black bg-opacity-60 p-2 overflow-x-auto whitespace-nowrap thumbnail-scrollbar flex items-center justify-center shrink-0 space-x-2 z-[110]">
+            <div
+              ref={fullscreenMediaThumbnailsContainerRef}
+              className="w-full h-24 bg-black bg-opacity-60 p-2 overflow-x-auto whitespace-nowrap thumbnail-scrollbar flex items-center justify-center shrink-0 space-x-2 z-[110]"
+            >
               {selectedProject.videoUrls?.map((videoUrl, videoIdx) => {
                 const videoId = videoUrl.split("v=")[1]?.split("&")[0];
                 return (
-                  <div key={`fs-video-thumb-${selectedProject.id}-${videoIdx}`} className={`inline-block flex-shrink-0 w-24 h-20 cursor-pointer rounded-md overflow-hidden relative align-top ${currentMediaIndex === videoIdx ? "ring-2 ring-blue-400" : "ring-1 ring-gray-600 hover:ring-gray-400"}`} onClick={() => handleFullscreenThumbnailClick(videoIdx)} title={`${selectedProject.title} - Video ${videoIdx + 1}`}>
-                    {videoId ? (<Image src={`https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`} alt="Video thumbnail" fill className="object-cover pointer-events-none" quality={70} sizes="96px" />)
-                     : (<div className="w-full h-full bg-gray-700 flex items-center justify-center pointer-events-none"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6 text-white"><path fillRule="evenodd" d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.279 20.001c-1.25.687-2.779-.217-2.779-1.643V5.653Z" clipRule="evenodd" /></svg></div>)}
-                    <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center group-hover:bg-opacity-0 transition-opacity pointer-events-none"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6 text-white opacity-60"><path fillRule="evenodd" d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.279 20.001c-1.25.687-2.779-.217-2.779-1.643V5.653Z" clipRule="evenodd" /></svg></div>
-                  </div>);
+                  <div
+                    key={`fs-video-thumb-${selectedProject.id}-${videoIdx}`}
+                    className={`inline-block flex-shrink-0 w-24 h-20 cursor-pointer rounded-md overflow-hidden relative align-top ${currentMediaIndex === videoIdx ? "ring-2 ring-blue-400" : "ring-1 ring-gray-600 hover:ring-gray-400"}`}
+                    onClick={() => handleFullscreenThumbnailClick(videoIdx)}
+                    title={`${selectedProject.title} - Video ${videoIdx + 1}`}
+                  >
+                    {videoId ? (
+                      <Image
+                        src={`https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`}
+                        alt="Video thumbnail"
+                        fill
+                        className="object-cover pointer-events-none"
+                        quality={70}
+                        sizes="96px"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gray-700 flex items-center justify-center pointer-events-none">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 24 24"
+                          fill="currentColor"
+                          className="w-6 h-6 text-white"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.279 20.001c-1.25.687-2.779-.217-2.779-1.643V5.653Z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      </div>
+                    )}
+                    <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center group-hover:bg-opacity-0 transition-opacity pointer-events-none">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        className="w-6 h-6 text-white opacity-60"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.279 20.001c-1.25.687-2.779-.217-2.779-1.643V5.653Z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </div>
+                  </div>
+                );
               })}
               {selectedProject.images.map((imageUrl, imgIdx) => {
-                const overallIndex = (selectedProject.videoUrls?.length || 0) + imgIdx;
+                const overallIndex =
+                  (selectedProject.videoUrls?.length || 0) + imgIdx;
                 return (
-                  <div key={`fs-img-thumb-${selectedProject.id}-${imgIdx}`} className={`inline-block flex-shrink-0 w-24 h-20 cursor-pointer rounded-md overflow-hidden relative align-top ${currentMediaIndex === overallIndex ? "ring-2 ring-blue-400" : "ring-1 ring-gray-600 hover:ring-gray-400"}`} onClick={() => handleFullscreenThumbnailClick(overallIndex)} title={`${selectedProject.title} - Image ${imgIdx + 1}`}>
-                    <Image src={imageUrl} alt={`Thumbnail ${imgIdx + 1}`} fill className="object-cover pointer-events-none" sizes="96px" quality={70} />
-                  </div>);
+                  <div
+                    key={`fs-img-thumb-${selectedProject.id}-${imgIdx}`}
+                    className={`inline-block flex-shrink-0 w-24 h-20 cursor-pointer rounded-md overflow-hidden relative align-top ${currentMediaIndex === overallIndex ? "ring-2 ring-blue-400" : "ring-1 ring-gray-600 hover:ring-gray-400"}`}
+                    onClick={() => handleFullscreenThumbnailClick(overallIndex)}
+                    title={`${selectedProject.title} - Image ${imgIdx + 1}`}
+                  >
+                    <Image
+                      src={imageUrl}
+                      alt={`Thumbnail ${imgIdx + 1}`}
+                      fill
+                      className="object-cover pointer-events-none"
+                      sizes="96px"
+                      quality={70}
+                    />
+                  </div>
+                );
               })}
             </div>
           )}
@@ -1220,9 +1546,25 @@ function Projects() {
       )}
 
       {hoveredTag && (
-        <div ref={tooltipRef} className="fixed bg-gray-900 text-white text-xs p-2 rounded z-[130] break-words w-40 shadow-lg pointer-events-none" style={{ left: `${tooltipPosition.x}px`, top: `${tooltipPosition.y}px`, transform: tooltipPosition.alignTop ? "translateY(calc(-100% - 5px))" : "translateY(5px)", transition: "top 0.1s ease-out, left 0.1s ease-out" }}>
-          {TAGS[hoveredTag].description.split('\n').map((paragraph, index) => (
-            <p key={index} className="tooltip-description-paragraph whitespace-pre-wrap">{paragraph}</p>
+        <div
+          ref={tooltipRef}
+          className="fixed bg-gray-900 text-white text-xs p-2 rounded z-[130] break-words w-40 shadow-lg pointer-events-none"
+          style={{
+            left: `${tooltipPosition.x}px`,
+            top: `${tooltipPosition.y}px`,
+            transform: tooltipPosition.alignTop
+              ? "translateY(calc(-100% - 5px))"
+              : "translateY(5px)",
+            transition: "top 0.1s ease-out, left 0.1s ease-out",
+          }}
+        >
+          {TAGS[hoveredTag].description.split("\n").map((paragraph, index) => (
+            <p
+              key={index}
+              className="tooltip-description-paragraph whitespace-pre-wrap"
+            >
+              {paragraph}
+            </p>
           ))}
         </div>
       )}
